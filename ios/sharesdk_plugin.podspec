@@ -16,8 +16,8 @@ Pod::Spec.new do |s|
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
   s.dependency 'mob_sharesdk'
-  s.dependency 'mob_sharesdk/ShareSDKExtension'
-  s.dependency 'mob_sharesdk/ShareSDKUI'
+#   s.dependency 'mob_sharesdk/ShareSDKExtension'
+#   s.dependency 'mob_sharesdk/ShareSDKUI'
   s.dependency 'mob_sharesdk/ShareSDKPlatforms/QQ'
 #   s.dependency 'mob_sharesdk/ShareSDKPlatforms/SinaWeibo'
   s.dependency 'mob_sharesdk/ShareSDKPlatforms/WeChat'
@@ -30,7 +30,7 @@ Pod::Spec.new do |s|
 #   s.dependency 'mob_sharesdk/ShareSDKPlatforms/WatermelonVideo'
 #   s.dependency 'mob_sharesdk/ShareSDKPlatforms/KuaiShou'
   #分享闭环
-  s.dependency 'mob_sharesdk/ShareSDKRestoreScene'
+#   s.dependency 'mob_sharesdk/ShareSDKRestoreScene'
   s.static_framework = true
 
   s.ios.deployment_target = '8.0'

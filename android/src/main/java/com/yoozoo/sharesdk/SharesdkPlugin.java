@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.util.Log;
+import androidx.annotation.NonNull;
 import com.mob.MobSDK;
 import com.mob.OperationCallback;
 import com.mob.PrivacyPolicy;
@@ -13,6 +14,11 @@ import com.mob.tools.utils.Hashon;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.flutter.embedding.engine.plugins.FlutterPlugin;
+import io.flutter.embedding.engine.plugins.activity.ActivityAware;
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.text.SimpleDateFormat;
@@ -35,7 +41,7 @@ import io.flutter.plugin.common.PluginRegistry;
 /**
  * SharesdkPlugin
  */
-public class SharesdkPlugin implements MethodCallHandler {
+public class SharesdkPlugin implements FlutterPlugin, MethodCallHandler, ActivityAware {
 
   private static final String PluginMethodGetVersion = "getVersion";
   private static final String PluginMethodShare = "share";
@@ -56,101 +62,13 @@ public class SharesdkPlugin implements MethodCallHandler {
   private static final String EVENTCHANNEL = "SSDKRestoreReceiver";
   private static EventChannel eventChannel;
   private static EventChannel.EventSink outerEventSink;
+  private MethodChannel channel;
 
   private static Activity activity = null;
 
   public static int IS_ALIVE = 123;
 
   private static final String TAG = "SHARESDK";
-
-
-  /**
-   * Plugin registration.
-   */
-  public static void registerWith(PluginRegistry.Registrar registrar) {
-    activity = registrar.activity();
-
-    final MethodChannel channel = new MethodChannel(registrar.messenger(),
-        "com.yoozoo.mob/sharesdk");
-    channel.setMethodCallHandler(new SharesdkPlugin());
-
-    eventChannel = new EventChannel(registrar.messenger(), EVENTCHANNEL);
-    eventChannel.setStreamHandler(new EventChannel.StreamHandler() {
-
-      @Override
-      public void onListen(Object o, EventChannel.EventSink eventSink) {
-        if (eventSink != null) {
-          outerEventSink = eventSink;
-          if (IS_ALIVE != 123) {
-            try {
-              HashMap<String, Object> resMap = ShareSDK.getCustomDataFromLoopShare();
-
-              HashMap<String, Object> fedbackMap = new HashMap<>();
-              if (resMap.containsKey("path")) {
-                fedbackMap.put("path", resMap.get("path"));
-              }
-              fedbackMap.put("params", resMap);
-              outerEventSink.success(fedbackMap);
-            } catch (Throwable t) {
-              Log.e("www", " catch====> " + t);
-            }
-
-            IS_ALIVE = 123;
-          }
-          Log.e("WWW", "onListen ===> outerEventSink " + outerEventSink);
-        } else {
-          Log.e("WWW", "onListen ===> eventSink is null ");
-        }
-
-      }
-
-      @Override
-      public void onCancel(Object o) {
-        Log.e("WWW", " onCancel " + " Object " + o);
-      }
-    });
-
-    //setChannelId
-    MobSDK.setChannel(new SHARESDK(), MobSDK.CHANNEL_FLUTTER);
-
-    /**
-     * loopshare init and set Listener
-     * **/
-    ShareSDK.prepareLoopShare(new LoopShareResultListener() {
-      @Override
-      public void onResult(Object var1) {
-        String test = new Hashon().fromHashMap((HashMap<String, Object>) var1);
-        Log.e("WWW", "LoopShareResultListener onResult " + test);
-
-        if (outerEventSink != null) {
-
-          try {
-            HashMap<String, Object> resMap = (HashMap<String, Object>) var1;
-
-            HashMap<String, Object> fedbackMap = new HashMap<>();
-            if (resMap.containsKey("path")) {
-              fedbackMap.put("path", resMap.get("path"));
-            }
-            fedbackMap.put("params", resMap);
-            outerEventSink.success(fedbackMap);
-          } catch (Throwable t) {
-            Log.e("www", " catch====> " + t);
-          }
-
-          Log.e("WWW", "LoopShareResultListener onResult outerEventSink.success is ok");
-        } else {
-          Log.e("WWW", "LoopShareResultListener onResult outerEventSink is null");
-        }
-      }
-
-      @Override
-      public void onError(Throwable t) {
-        Log.e("WWW", "LoopShareResultListener onError " + t);
-      }
-    });
-    Log.e("WWW", " ShareSDK.prepareLoopShare() successed ");
-
-  }
 
   @Override
   public void onMethodCall(MethodCall call, Result result) {
@@ -990,6 +908,116 @@ public class SharesdkPlugin implements MethodCallHandler {
       });
     }
   }
+
+  @Override
+  public void onAttachedToEngine(@NonNull @NotNull FlutterPluginBinding binding) {
+    channel = new MethodChannel(binding.getBinaryMessenger(),
+            "com.yoozoo.mob/sharesdk");
+    channel.setMethodCallHandler(new SharesdkPlugin());
+
+    eventChannel = new EventChannel(binding.getBinaryMessenger(), EVENTCHANNEL);
+    eventChannel.setStreamHandler(new EventChannel.StreamHandler() {
+
+      @Override
+      public void onListen(Object o, EventChannel.EventSink eventSink) {
+        if (eventSink != null) {
+          outerEventSink = eventSink;
+          if (IS_ALIVE != 123) {
+            try {
+              HashMap<String, Object> resMap = ShareSDK.getCustomDataFromLoopShare();
+
+              HashMap<String, Object> fedbackMap = new HashMap<>();
+              if (resMap.containsKey("path")) {
+                fedbackMap.put("path", resMap.get("path"));
+              }
+              fedbackMap.put("params", resMap);
+              outerEventSink.success(fedbackMap);
+            } catch (Throwable t) {
+              Log.e("www", " catch====> " + t);
+            }
+
+            IS_ALIVE = 123;
+          }
+          Log.e("WWW", "onListen ===> outerEventSink " + outerEventSink);
+        } else {
+          Log.e("WWW", "onListen ===> eventSink is null ");
+        }
+
+      }
+
+      @Override
+      public void onCancel(Object o) {
+        Log.e("WWW", " onCancel " + " Object " + o);
+      }
+    });
+
+    //setChannelId
+    MobSDK.setChannel(new SHARESDK(), MobSDK.CHANNEL_FLUTTER);
+
+    /**
+     * loopshare init and set Listener
+     * **/
+    ShareSDK.prepareLoopShare(new LoopShareResultListener() {
+      @Override
+      public void onResult(Object var1) {
+        String test = new Hashon().fromHashMap((HashMap<String, Object>) var1);
+        Log.e("WWW", "LoopShareResultListener onResult " + test);
+
+        if (outerEventSink != null) {
+
+          try {
+            HashMap<String, Object> resMap = (HashMap<String, Object>) var1;
+
+            HashMap<String, Object> fedbackMap = new HashMap<>();
+            if (resMap.containsKey("path")) {
+              fedbackMap.put("path", resMap.get("path"));
+            }
+            fedbackMap.put("params", resMap);
+            outerEventSink.success(fedbackMap);
+          } catch (Throwable t) {
+            Log.e("www", " catch====> " + t);
+          }
+
+          Log.e("WWW", "LoopShareResultListener onResult outerEventSink.success is ok");
+        } else {
+          Log.e("WWW", "LoopShareResultListener onResult outerEventSink is null");
+        }
+      }
+
+      @Override
+      public void onError(Throwable t) {
+        Log.e("WWW", "LoopShareResultListener onError " + t);
+      }
+    });
+    Log.e("WWW", " ShareSDK.prepareLoopShare() successed ");
+
+  }
+
+  @Override
+  public void onDetachedFromEngine(@NonNull @NotNull FlutterPluginBinding binding) {
+    channel.setMethodCallHandler(null);
+  }
+
+  @Override
+  public void onAttachedToActivity(@NonNull @NotNull ActivityPluginBinding binding) {
+    activity = binding.getActivity();
+  }
+
+  @Override
+  public void onDetachedFromActivityForConfigChanges() {
+    activity = null;
+  }
+
+  @Override
+  public void onReattachedToActivityForConfigChanges(@NonNull @NotNull ActivityPluginBinding binding) {
+    activity = binding.getActivity();
+  }
+
+  @Override
+  public void onDetachedFromActivity() {
+    activity = null;
+  }
+
 
   /**
    * java层给flutter层发送消息,写了但是没用到，留着吧
