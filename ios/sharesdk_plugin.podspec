@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
   s.dependency 'mob_sharesdk'
-#   s.dependency 'mob_sharesdk/ShareSDKExtension'
+  s.dependency 'mob_sharesdk/ShareSDKExtension'
 #   s.dependency 'mob_sharesdk/ShareSDKUI'
   s.dependency 'mob_sharesdk/ShareSDKPlatforms/QQ'
 #   s.dependency 'mob_sharesdk/ShareSDKPlatforms/SinaWeibo'
