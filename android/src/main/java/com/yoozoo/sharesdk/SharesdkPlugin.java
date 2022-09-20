@@ -7,9 +7,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import com.mob.MobSDK;
 import com.mob.OperationCallback;
-import com.mob.PrivacyPolicy;
 import com.mob.commons.SHARESDK;
-import com.mob.commons.dialog.entity.MobPolicyUi;
 import com.mob.tools.utils.Hashon;
 
 import java.util.ArrayList;
@@ -56,7 +54,6 @@ public class SharesdkPlugin implements FlutterPlugin, MethodCallHandler, Activit
   private static final String PluginMethodOpenMiniProgram = "openMiniProgram";
   private static final String PluginMethodIsClientInstalled = "isClientInstalled";
   //隐私协议 getPrivacyPolicy
-  private static final String PluginMethodGetPrivacyPolicy = "getPrivacyPolicy";
   private static final String PluginMethodUploadPrivacyPermissionStatus = "uploadPrivacyPermissionStatus";
 
   private static final String EVENTCHANNEL = "SSDKRestoreReceiver";
@@ -109,9 +106,6 @@ public class SharesdkPlugin implements FlutterPlugin, MethodCallHandler, Activit
         break;
       case PluginMethodIsClientInstalled:
         isClientInstalled(call, result);
-        break;
-      case PluginMethodGetPrivacyPolicy: //隐私协议
-        getPrivacyPolicy(call, result);
         break;
       case PluginMethodUploadPrivacyPermissionStatus:
         submitPrivacyGrantResult(call, result);
@@ -170,50 +164,6 @@ public class SharesdkPlugin implements FlutterPlugin, MethodCallHandler, Activit
         Log.d("qqq", "隐私协议授权结果提交：失败" + resp);
       }
     });
-  }
-
-  //隐私协议的方法
-  private void getPrivacyPolicy(MethodCall call, final Result result) {
-    try {
-      HashMap<String, Object> map = call.arguments();
-      String type = String.valueOf(map.get("type"));
-      int Type = Integer.valueOf(type);
-      //String respValue = MobSDK.getPrivacyPolicy(Type);
-
-      // 异步方法
-      MobSDK.getPrivacyPolicyAsync(Type, new PrivacyPolicy.OnPolicyListener() {
-        @Override
-        public void onComplete(PrivacyPolicy data) {
-          if (data != null) {
-            Map<String, Object> map = new HashMap<>();
-            HashMap<String, Object> valueMap = new HashMap<>();
-            String resp = String.valueOf(data.getContent());
-
-            valueMap.put("data", resp);
-            map.put("data", valueMap);
-            result.success(map);
-          }
-        }
-
-        @Override
-        public void onFailure(Throwable t) {
-          // 请求失败
-          Map<String, Object> map = new HashMap<>();
-          HashMap<String, Object> valueMap = new HashMap<>();
-          String resp = String.valueOf(t.getMessage());
-
-          valueMap.put("error", resp);
-          map.put("error", valueMap);
-          result.success(map);
-          Log.e(TAG, "隐私协议查询结果：失败 " + t);
-        }
-      });
-
-    } catch (Throwable t) {
-      Log.e("qqq", "getPrivacyPolicy catch===> " + t);
-    }
-
-
   }
 
   /**

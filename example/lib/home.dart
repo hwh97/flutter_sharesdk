@@ -28,32 +28,6 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  /// @param 隐私协议返回数据的格式
-  /// POLICY_TYPE_URL = 1
-  /// POLICY_TYPE_TXT = 2
-  getPrivacyPolicyUrl(BuildContext context) {
-    SharesdkPlugin.getPrivacyPolicy("1", "en-CN", (Map data, Map error) {
-      String policyData, errorStr;
-      if (data != null) {
-        policyData = data["data"];
-        print("==============>policyData " + policyData);
-      }
-
-      if (error != null) {
-        errorStr = error["error"];
-        print("==============>errorStr " + errorStr);
-      }
-
-      if (policyData != null) {
-        showAlertText("隐私协议", policyData, context);
-      } else if (errorStr != null) {
-        showAlertText("隐私协议", errorStr, context);
-      } else {
-        showAlertText("隐私协议", "获取隐私协议失败", context);
-      }
-    });
-  }
-
   /// 0 ===> 不同意隐私政策
   /// 1 ===> 同意
   submitPrivacyGrantResult(BuildContext context) {
@@ -635,7 +609,6 @@ class _HomePageState extends State<HomePage> {
         padding: EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 0.0),
         children: <Widget>[
           _creatRow("ShareSDK版本号", "ShareSDK版本号", shareSdkVersion, context),
-          _creatRow("获取隐私协议内容", "", getPrivacyPolicyUrl, context),
           _creatRow("设置同意隐私政策", "", submitPrivacyGrantResult, context),
           _creatRow("分享到微信收藏", "分享网页类型到微信收藏", shareToWechatFavorite, context),
           _creatRow("分享到微信", "分享图片到微信", shareToWechat, context),

@@ -168,24 +168,6 @@ class SharesdkPlugin {
     return callback;
   }
 
-  //get ShareSDK PrivacyPolicy, language forExample en-CN,zh-Hans-CN,zh,en. null will be zh
-  static Future<dynamic> getPrivacyPolicy(
-      String type, String? language, Function(Map data, Map error)? result) {
-    Map args = {"type": type};
-    if (language != null) {
-      args["language"] = language;
-    }
-    Future<dynamic> callback =
-        _channel.invokeMethod(ShareSDKMethods.getPrivacyPolicy.name, args);
-    callback.then((dynamic response) {
-      print(response);
-      if (result != null) {
-        result(response["data"], response["error"]);
-      }
-    });
-    return callback;
-  }
-
   ///upload user permissionStatus to Share
   static Future<dynamic> uploadPrivacyPermissionStatus(
       int status, Function(bool success)? result) {
